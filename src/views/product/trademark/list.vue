@@ -1,13 +1,13 @@
 <template>
   <div>
     <el-button type="primary" icon="el-icon-plus">添加</el-button>
-    <el-table :data="tableData" border style="width: 100%; margin: 20px 0">
-      <el-table-column prop="id" label="序号" width="80" align="center">
+    <el-table :data="trademark" border style="width: 100%; margin: 20px 0">
+      <el-table-column type="index" label="序号" width="80" align="center">
       </el-table-column>
-      <el-table-column prop="name" label="品牌名称"> </el-table-column>
-      <el-table-column prop="logo" label="品牌LOGO">
+      <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
+      <el-table-column label="品牌LOGO">
         <template slot-scope="scope">
-          <img :src="scope.row.logo" class="logo" />
+          <img :src="scope.row.logoUrl" class="logo" />
         </template>
       </el-table-column>
       <el-table-column prop="address" label="操作">
@@ -22,12 +22,17 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       :page-sizes="[3, 6, 9]"
-      :page-size="3"
+      :page-size.sync="limit"
       layout=" prev, pager, next, jumper,sizes,total"
-      :total="50"
+      :total="total"
+      :current-page.sync="page"
       class="pagination"
     >
+      <!-- current-page 为当前点击页数   page-size每次显示的条数-->
+      <!-- .sync修饰符是适用于子传父，类似于v-model，会进行数据的双向流动 -->
     </el-pagination>
   </div>
 </template>
@@ -37,15 +42,43 @@ export default {
   name: 'TrademarkList',
   data() {
     return {
-      tableData: [
-        {
-          id: 1,
-          name: 'ipone',
-          logo:
-            'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1607667808621&di=44df8a989ff79b96a3400735ae1d5e84&imgtype=0&src=http%3A%2F%2Fa3.att.hudong.com%2F35%2F34%2F19300001295750130986345801104.jpg',
-        },
-      ],
+      trademark: [],
+      total: 0,
+      page: 1,
+      limit: 3,
     }
+  },
+  methods: {
+    handleCurrentChange(page) {
+      console.log(page, this.limit)
+      this.getPageList(page, this.limit)
+    },
+    handleSizeChange(limit) {
+      console.log(this.page, limit)
+      this.getPageList(this.page, limit)
+    },
+    // 封装发送请求数据的方法，因为有需要用到公共的方法
+    async getPageList(page, limit) {
+      try {
+        // 需要传page和limit
+        const result = await this.$API.trademark.getPageList(page, limit)
+        console.log(result)
+        if (result.code === 200) {
+          this.$message.success('请求数据成功')
+          this.trademark = result.data.records
+          this.total = result.data.total
+          this.currentPage = result.data.current
+          this.pageSize = result.data.size
+        } else {
+          this.$message.error('请求数据失败')
+        }
+      } catch {
+        this.$message.error('请求数据失败')
+      }
+    },
+  },
+  mounted() {
+    this.getPageList(this.page, this.limit)
   },
 }
 </script>
