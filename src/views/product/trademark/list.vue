@@ -13,11 +13,15 @@
         </template>
       </el-table-column>
       <el-table-column prop="address" label="操作">
-        <template>
+        <template slot-scope="scope">
           <el-button type="warning" icon="el-icon-edit" size="mini"
             >修改</el-button
           >
-          <el-button type="danger" icon="el-icon-delete" size="mini"
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            @click="del(scope.row.id)"
             >删除</el-button
           >
         </template>
@@ -46,13 +50,15 @@
           ref="ruleForm"
           label-width="100px"
         >
+          <!-- action="http://182.92.128.115/admin/product/fileUpload" -->
+          <!--  action="/dev-api/admin/product/fileUpload" -->
           <el-form-item label="品牌名称" prop="tmName">
             <el-input v-model="ruleForm.tmName"></el-input>
           </el-form-item>
           <el-form-item label="品牌LOGO" prop="logoUrl">
             <el-upload
               class="avatar-uploader"
-              action="http://182.92.128.115/admin/product/fileUpload"
+              :action="`${$BASE_API}/admin/product/fileUpload`"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
@@ -135,7 +141,7 @@ export default {
     },
     // 上传图片成功之后的回调
     handleAvatarSuccess(res, file) {
-      console.log(res.data)
+      console.log(res)
       this.ruleForm.logoUrl = res.data
     },
     // 在图片上传上传之前，需要进行验证
@@ -179,6 +185,30 @@ export default {
           }
         }
       })
+    },
+    del(id) {
+      {
+        this.$confirm('此操作将删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        })
+          .then(async () => {
+            // 这里是删除当前获取数据的id，通过id将数据给删除掉，然后重新在发个请求，更新系统数据，这样用户界面就可以更新出来，然后如果不请求更新用户界面数据的时候，数据也会进行删除，但是界面不会更新，所以需要发送两个请求
+            await this.$API.trademark.delPageList(id)
+            await this.getPageList(this.page, this.limit)
+            this.$message({
+              type: 'success',
+              message: '删除成功!',
+            })
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除',
+            })
+          })
+      }
     },
   },
   mounted() {
