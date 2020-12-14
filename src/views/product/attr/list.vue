@@ -1,11 +1,13 @@
 <template>
   <div>
     <!-- 当我isShow为false 的时候，上面的那个就需要禁用 -->
-    <Category
+    <!-- 自定义事件 -->
+    <!--  <Category
       @change="getAttrList"
       :disabled="!isShow"
       @clearList="clearList"
-    />
+    /> -->
+    <Category :disabled="!isShow" />
     <el-card style="margin-top: 50px" v-show="isShow">
       <el-button
         type="primary"
@@ -243,6 +245,16 @@ export default {
       } */
       this.attr = JSON.parse(JSON.stringify(attr))
     },
+  },
+  mounted(){
+    // 全局事件总线
+      this.$bus.$on("change",this.getAttrList)
+      this.$bus.$on("clearList",this.clearList)
+  },
+   beforeDestroy() {
+    // 通常情况下：清除绑定的全局事件
+    this.$bus.$off("change", this.handleCategoryChange);
+    this.$bus.$off("clearList", this.clearList);
   },
   components: {
     Category,

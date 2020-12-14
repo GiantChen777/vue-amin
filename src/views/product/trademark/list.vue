@@ -274,11 +274,7 @@ export default {
 <style lang="sass">
 .logo
   width: 100px
-.pagination
-  text-align: right
-.el-pagination__sizes
-  margin-left: 500px
-
+  
 .avatar-uploader .el-upload
   border: 1px dashed #d9d9d9
   border-radius: 6px

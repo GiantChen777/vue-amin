@@ -84,7 +84,7 @@ export default {
       }
       // 清空父组件的数据
       // 因为这边是发起请求，需要请求id，从而获取到数据，这边不请空父组件的数据的话，点击的时候id是不一样的，
-      this.$emit('clearList')
+      this.$bus.$emit('clearList')
     },
     async headerChange2(category2Id) {
       this.category3List = []
@@ -97,7 +97,7 @@ export default {
         this.$message.error(result.data)
       }
       // 清空父组件的数据
-      this.$emit('clearList')
+      this.$bus.$emit('clearList')
     },
     // 通过点击获取得到3Id,然后进行传参数三个参数，进行发送请求，
     async headerChange3(category3Id) {
@@ -106,7 +106,7 @@ export default {
         category3Id,
       }
       //这里只触发事件，将id给传给父组件（list），父组件进行发送请求，遍历数据
-      this.$emit('change', category)
+      this.$bus.$emit('change', category)
       /*  // 然后进行发送请求
       const result = await this.$API.attrs.getAttrList(category)
       if (result.code === 200) {
