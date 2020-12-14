@@ -1,8 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" icon="el-icon-plus" @click="visible = true"
-      >添加</el-button
-    >
+    <el-button type="primary" icon="el-icon-plus" @click="add">添加</el-button>
     <el-table :data="trademark" border style="width: 100%; margin: 20px 0">
       <el-table-column type="index" label="序号" width="80" align="center">
       </el-table-column>
@@ -13,15 +11,20 @@
         </template>
       </el-table-column>
       <el-table-column prop="address" label="操作">
-        <template slot-scope="scope">
-          <el-button type="warning" icon="el-icon-edit" size="mini"
+        <!-- 作用域插槽slot-scope 也可以重新命名为v-slot -->
+        <template v-slot="{ row }">
+          <el-button
+            type="warning"
+            icon="el-icon-edit"
+            size="mini"
+            @click="update(row)"
             >修改</el-button
           >
           <el-button
             type="danger"
             icon="el-icon-delete"
             size="mini"
-            @click="del(scope.row.id)"
+            @click="del(row.id)"
             >删除</el-button
           >
         </template>
@@ -42,7 +45,12 @@
     </el-pagination>
 
     <!-- 弹出框 -->
-    <el-dialog title="添加品牌" :visible.sync="visible" width="50%">
+    <!-- 通过ruleForm的id有没有来进行判断 标题是否是添加或者修改两个字 -->
+    <el-dialog
+      :title="`${ruleForm.id ? '修改品牌' : '添加品牌'}`"
+      :visible.sync="visible"
+      width="50%"
+    >
       <span>
         <el-form
           :model="ruleForm"
@@ -171,9 +179,34 @@ export default {
           // console.log(this.trademarkForm);
           // 发送请求
           // 如果请求成功，则发送请求，添加到数据库中
-          const result = await this.$API.trademark.addPageList(this.ruleForm)
+          // 提交表单数据，通过就修改，没有就不修改原数据，所以需要进行判断
+          const { ruleForm } = this
+          // 定义变量，强制转换为boolear值
+          const isUpdate = !!ruleForm.id
+          // 如果ruleForm存在，则表示有数据
+          if (isUpdate) {
+            const tm = this.trademark.find((item) => {
+              return item.id === ruleForm.id
+            })
+            if (
+              tm.tmName === ruleForm.tmName &&
+              tm.logoUrl === ruleForm.logoUrl
+            ) {
+              this.$message.warning('不能提交与之前一样的数据')
+              return
+            }
+          }
+          // 然后点击确定之后需要发送请求
+          let result
+          if (isUpdate) {
+            result = await this.$API.trademark.updatePageList(ruleForm)
+          } else {
+            result = await this.$API.trademark.addPageList(ruleForm)
+          }
           if (result.code === 200) {
-            this.$message.success('添加品牌数据成功')
+            // 这里修改数据成功之后就不能是添加，而应该显示修改数据
+            //如果是就修改，不是就添加
+            this.$message.success(`${isUpdate ? '修改' : '添加'}品牌数据成功`)
             // 请求成功后需要隐藏对话框
             this.visible = false
             //添加请求发起成功之后更新数据库，重新发送请求
@@ -186,7 +219,19 @@ export default {
         }
       })
     },
+    // 添加表单
+    add() {
+      // 首先点击修改需要将数据显示出来，
+      this.visible = true
+      this.ruleForm = {
+        tmName: '',
+        logoUrl: '',
+      }
+      this.$refs.ruleForm && this.$refs.ruleForm.clearValidate()
+    },
+    // 删除表单数据
     del(id) {
+      console.log(id)
       {
         this.$confirm('此操作将删除该文件, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -209,6 +254,16 @@ export default {
             })
           })
       }
+    },
+    // 修改表单数据
+    update(row) {
+      // 首先点击修改需要将数据显示出来，
+      this.visible = true
+      // 然后显示的时候需要将数据进行传过去显示
+      // 这里应该重新结构赋值一个新对象，因为是ruleForm和trademark是地址值的赋值，一旦修改，就会也将trademark的值也给修改了，所以需要重新结构赋值一个新的对象
+      this.ruleForm = { ...row }
+      //退出之后需要清空里面的验证
+      this.$refs.ruleForm && this.$refs.ruleForm.clearValidate()
     },
   },
   mounted() {
