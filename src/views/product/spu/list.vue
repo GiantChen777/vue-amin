@@ -6,8 +6,8 @@
       :disabled 决定select是否可以使用
      -->
     <Category />
-    <SpuShowList v-show="isShow" />
-    <SpuUpdateList v-show="!isShow" />
+    <SpuShowList v-if="isShow" @showUpdateList="showUpdateList" />
+    <SpuUpdateList v-else :item="item" />
   </div>
 </template>
 
@@ -21,7 +21,16 @@ export default {
   data() {
     return {
       isShow: true,
+      item: {},
     }
+  },
+  methods: {
+    showUpdateList(row) {
+      // 讲isShow改成false，就会显示另一个页面了
+      this.isShow = false
+      // 并且将数据传给过去
+      this.item = { ...row }
+    },
   },
   components: {
     Category,
