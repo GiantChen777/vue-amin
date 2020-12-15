@@ -74,7 +74,7 @@ export default {
       })
       if (result.code === 200) {
         this.$message.success('请求数据成功')
-        console.log(result.data)
+        // console.log(result.data)
         this.spuList = result.data.records
         this.total = result.data.total
         this.page = result.data.pages
