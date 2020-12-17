@@ -133,7 +133,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="sav">保存</el-button>
-        <el-button @click="$emit('showList', spu.category3Id)">取消</el-button>
+        <el-button @click="$emit('showList')">取消</el-button>
       </el-form-item>
     </el-form>
     <el-dialog :visible.sync="visible">
@@ -143,6 +143,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   name: 'SpuUpdateList',
   props: {
@@ -196,6 +198,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
     // 图片的计算属性
     imagecomput() {
       return this.imageList.map((item) => {
@@ -257,6 +262,7 @@ export default {
           console.log('校验通过~')
           const from = {
             ...this.spu,
+            category3Id: this.category.category3Id,
             spuImageList: this.imageList,
             // spuSaleAttrList: this.saleAttrList,
             spuSaleAttrList: this.spuSaleAttrList,
@@ -273,7 +279,7 @@ export default {
           if (result.code === 200) {
             console.log(result)
             this.$message.success(`${this.spu.id ? '更新' : '添加'}spu数据成功`)
-            this.$emit('showList', this.spu.category3Id)
+            this.$emit('showList')
             /*   // 成功之后然后调用展示页面的函数，
         this.$nextTick(() => {
           this.$bus.$emit('change', { category3Id: from.category3Id })

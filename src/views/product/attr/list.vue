@@ -124,6 +124,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Category from '@/components/Category'
 
 export default {
@@ -136,12 +137,33 @@ export default {
         attrName: '',
         attrValueList: [],
       },
-      category: {
+      /*    category: {
         category1Id: '',
         category2Id: '',
         category3Id: '',
-      },
+      }, */
     }
+  },
+  computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
+  },
+  // 计算属性还可以监视一个对象中属性的变化
+  watch: {
+    // 使用watch属性，监听里面id的变化，变化了就触发发送请求，
+    'category.category3Id'(category3Id) {
+      // 如果category3Id不存在，就不发送请求，
+      if (!category3Id) return
+      this.getAttrList()
+    },
+    // 监视一级和二级列表id变化的话，就清空列表和数据
+    'category.category1Id'() {
+      this.clearList()
+    },
+    'category.category2Id'() {
+      this.clearList()
+    },
   },
   methods: {
     // 点击切换选项的时候，清空子组件的内容数据attrsList和禁用按钮
@@ -186,7 +208,7 @@ export default {
         // 保存完数据并且切回展示数据页面
         this.isShow = true
         // 发送请求，然后重新渲染数据
-        this.getAttrList(this.category)
+        this.getAttrList()
       } else {
         this.$message.error(result.message)
       }
@@ -198,7 +220,7 @@ export default {
         // this.attrsList= result.data
         // 发送请求，然后重新渲染数据
         this.$message.success('删除属性成功~')
-        this.getAttrList(this.category)
+        this.getAttrList()
       } else {
         this.$message.error(result.message)
       }
@@ -221,11 +243,11 @@ export default {
         this.$refs.input.focus()
       })
     },
-    async getAttrList(category) {
+    async getAttrList() {
       // 这一步将数据保存在this上面的category上面，重新赋值
-      this.category = category
+      // this.category = category
       // 然后进行发送请求
-      const result = await this.$API.attrs.getAttrList(category)
+      const result = await this.$API.attrs.getAttrList(this.category)
       if (result.code === 200) {
         // console.log(result.data);
         // 子组件给父组件传递参数 自定义事件
@@ -246,16 +268,17 @@ export default {
       this.attr = JSON.parse(JSON.stringify(attr))
     },
   },
-  mounted(){
+
+  /*  mounted(){
     // 全局事件总线
       this.$bus.$on("change",this.getAttrList)
       this.$bus.$on("clearList",this.clearList)
-  },
-   beforeDestroy() {
+  }, */
+  /*  beforeDestroy() {
     // 通常情况下：清除绑定的全局事件
     this.$bus.$off("change", this.handleCategoryChange);
     this.$bus.$off("clearList", this.clearList);
-  },
+  }, */
   components: {
     Category,
   },

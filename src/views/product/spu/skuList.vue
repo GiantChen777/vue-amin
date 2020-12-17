@@ -89,6 +89,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   props: {
     sku: Object,
@@ -101,6 +102,11 @@ export default {
       spuSaleAttrList: [], //所有请求的属性列表值的数据
       attrsList: [], //所有的平台属性
     }
+  },
+  computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
   },
   methods: {
     handleSelectionChange() {},
@@ -139,11 +145,7 @@ export default {
     },
     async getAttrList() {
       // 然后进行发送请求
-      const result = await this.$API.attrs.getAttrList({
-        category1Id: this.spu.category1Id,
-        category2Id: this.spu.category2Id,
-        category3Id: this.spu.category3Id,
-      })
+      const result = await this.$API.attrs.getAttrList(this.category)
       if (result.code === 200) {
         // console.log(result.data);
         // 子组件给父组件传递参数 自定义事件
@@ -154,6 +156,7 @@ export default {
       }
     },
   },
+
   mounted() {
     this.getSpuImageList()
     this.getSpuSaleAttrList()

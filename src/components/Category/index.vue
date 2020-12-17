@@ -53,6 +53,8 @@
 </template>
 
 <script>
+import { mapState, mapActions, mapMutations } from 'vuex'
+
 export default {
   name: 'Category',
   data() {
@@ -62,51 +64,67 @@ export default {
         category2Id: '',
         category3Id: '',
       },
-      category1List: [], // 1级分类数据
+      /*  category1List: [], // 1级分类数据
       category2List: [],
-      category3List: [],
+      category3List: [], */
     }
+  },
+  computed: {
+    ...mapState({
+      category1List: (state) => state.category.category1List,
+      category2List: (state) => state.category.category2List,
+      category3List: (state) => state.category.category3List,
+    }),
   },
   props: ['disabled'],
   methods: {
+    ...mapActions([
+      'category/getCategorys1List',
+      'category/getCategorys2List',
+      'category/getCategorys3List',
+    ]),
+    ...mapMutations(['category/SET_CATEGORY3_ID']),
     // 处理输入框的表单事件，传1id，进行发起请求
     async headerChange1(category1Id) {
-      this.category2List = []
-      this.category3List = []
+      /* this.category2List = []
+      this.category3List = [] */
       this.category.category2Id = ''
       this.category.category3Id = ''
       // console.log(category1Id)
-      const result = await this.$API.attrs.getCategorys2(category1Id)
+      /* const result = await this.$API.attrs.getCategorys2(category1Id)
       if (result.code === 200) {
         this.category2List = result.data
       } else {
         this.$message.error(result.data)
-      }
+      } */
+      this['category/getCategorys2List'](category1Id)
       // 清空父组件的数据
       // 因为这边是发起请求，需要请求id，从而获取到数据，这边不请空父组件的数据的话，点击的时候id是不一样的，
       this.$bus.$emit('clearList')
     },
     async headerChange2(category2Id) {
-      this.category3List = []
+      // this.category3List = []
       this.category.category3Id = ''
       // console.log(category1Id)
-      const result = await this.$API.attrs.getCategorys3(category2Id)
+      /*  const result = await this.$API.attrs.getCategorys3(category2Id)
       if (result.code === 200) {
         this.category3List = result.data
       } else {
         this.$message.error(result.data)
       }
-      // 清空父组件的数据
+      // 清空父组件的数据 */
+      this['category/getCategorys3List'](category2Id)
       this.$bus.$emit('clearList')
     },
     // 通过点击获取得到3Id,然后进行传参数三个参数，进行发送请求，
     async headerChange3(category3Id) {
-      const category = {
+      /*  const category = {
         ...this.category,
         category3Id,
-      }
+      } */
+      this['category/SET_CATEGORY3_ID'](category3Id)
       //这里只触发事件，将id给传给父组件（list），父组件进行发送请求，遍历数据
-      this.$bus.$emit('change', category)
+      // this.$bus.$emit('change', category)
       /*  // 然后进行发送请求
       const result = await this.$API.attrs.getAttrList(category)
       if (result.code === 200) {
@@ -120,13 +138,14 @@ export default {
     },
   },
   async mounted() {
-    const result = await this.$API.attrs.getCategorys1()
+    /*   const result = await this.$API.attrs.getCategorys1()
     // console.log(result)
     if (result.code === 200) {
       this.category1List = result.data
     } else {
       this.$message.error(result.message)
-    }
+    } */
+    this['category/getCategorys1List']()
   },
 }
 </script>

@@ -62,6 +62,9 @@
 </template>
 
 <script>
+import { Handler } from 'mockjs'
+import { mapState } from 'vuex'
+
 export default {
   name: 'SpuShowList',
   data() {
@@ -69,14 +72,39 @@ export default {
       page: 1,
       limit: 3,
       total: 0,
-      category: {
+      /*  category: {
         category1Id: '',
         category2Id: '',
         category3Id: '',
-      },
+      }, */
       spuList: [],
       loading: false,
     }
+  },
+  computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
+  },
+  // 计算属性还可以监视一个对象中属性的变化
+  watch: {
+    // 使用watch属性，监听里面id的变化，变化了就触发发送请求，
+    // 一上来就发个请求，立即触发
+    'category.category3Id': {
+      // 如果category3Id不存在，就不发送请求，
+      handler(category3Id) {
+        if (!category3Id) return
+        this.getPageList(this.page, this.limit)
+      },
+      immediate: true, //一上来
+    },
+    // 监视一级和二级列表id变化的话，就清空列表和数据
+    'category.category1Id'() {
+      this.clearList()
+    },
+    'category.category2Id'() {
+      this.clearList()
+    },
   },
   methods: {
     // 删除attrs的参数列表
@@ -106,24 +134,24 @@ export default {
       }
       this.loading = false
     },
-    handleCategoryChange(category) {
-      this.category = category
+    /*    handleCategoryChange(category) {
+      // this.category = category
       // 有了id之后就可以发送请求，请求添加spu下面的数据
       this.getPageList(this.page, this.limit)
-    },
+    }, */
     // 当选中1级或2级分类触发
     clearList() {
       this.spuList = []
       this.page = 1
       this.limit = 3
       this.total = 0
-      this.category.category3Id = ''
+      // this.category.category3Id = ''
     },
   },
   mounted() {
     // 通过全局事件总线，来获取得到category传过来的id，以便于获取得到数据
-    this.$bus.$on('change', this.handleCategoryChange)
-    this.$bus.$on('clearList', this.clearList)
+    // this.$bus.$on('change', this.handleCategoryChange)
+    // this.$bus.$on('clearList', this.clearList)
   },
   /*  beforeDestroy() {
     // 通常情况下：清除绑定的全局事件
@@ -134,8 +162,8 @@ export default {
   // 所以需要将  this.category = category
   // this.getPageList(this.page, this.limit)定义层一个函数，实现函数的复用性
   beforeDestroy() {
-    this.$bus.$off('change', this.handleCategoryChange)
-    this.$bus.$off('clearList', this.clearList)
+    // this.$bus.$off('change', this.handleCategoryChange)
+    // this.$bus.$off('clearList', this.clearList)
   },
 }
 </script>
