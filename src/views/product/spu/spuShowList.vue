@@ -1,6 +1,13 @@
 <template>
   <el-card style="margin-top: 20px">
-    <el-button type="primary" icon="el-icon-plus">添加SPU</el-button>
+    <el-button
+      type="primary"
+      icon="el-icon-plus"
+      @click="$emit('showUpdateList', { category3Id: category.category3Id })"
+      :disabled="!category.category3Id"
+      >添加SPU</el-button
+    >
+    <!-- 这个showList的这个页面有category3Id，可以将点的时候发送给添加时候 ，到时候保存回来就可以通过category3Id请求数据 -->
 
     <el-table
       :data="spuList"
@@ -15,7 +22,12 @@
       <el-table-column prop="description" label="SPU描述"> </el-table-column>
       <el-table-column label="操作">
         <template v-slot="{ row }">
-          <el-button type="primary" icon="el-icon-plus" size="mini"></el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-plus"
+            size="mini"
+            @click="$emit('isShowSkuList', { ...row, ...category })"
+          ></el-button>
           <el-button
             type="primary"
             icon="el-icon-edit"
@@ -23,11 +35,15 @@
             @click="$emit('showUpdateList', row)"
           ></el-button>
           <el-button type="info" icon="el-icon-info" size="mini"></el-button>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            size="mini"
-          ></el-button>
+          <el-popconfirm title="这是一段内容确定删除吗？">
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+              slot="reference"
+              @onConfirm="delattrs(row.id)"
+            ></el-button>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -63,6 +79,12 @@ export default {
     }
   },
   methods: {
+    // 删除attrs的参数列表
+    delattrs(id) {
+      this.spuList = this.spuList.filter((item) => {
+        return item.id !== id
+      })
+    },
     // 获取SPU分页列表
     async getPageList(page, limit) {
       this.loading = true

@@ -37,24 +37,25 @@ export default {
   /admin/product/saveSpuInfo保存
   添加SPU
   */
-  saveSpuInfo () {
+  saveSpuInfo (spu) {
     return request({
       url: `${api_name}/saveSpuInfo`,
-      method: "POST"
+      method: "POST",
+      data: spu
     });
   },
   /*
   /admin/product/updateSpuInfo
   修改SPU
   */
-/*   updateSpuInfo (spu) {
-    return request({
-      url: `${api_name}/updateSpuInfo`,
-      method: "POST",
-      data: spu
-    });
-  }, */
-  updateSpu(spu) {
+  /*   updateSpuInfo (spu) {
+      return request({
+        url: `${api_name}/updateSpuInfo`,
+        method: "POST",
+        data: spu
+      });
+    }, */
+  updateSpu (spu) {
     return request({
       url: `${api_name}/updateSpuInfo`,
       method: "POST",

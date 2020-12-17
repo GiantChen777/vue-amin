@@ -156,7 +156,7 @@ export default {
       previewImgUrl: '', // 图片地址
       visible: false, // 图片对话框显示&隐藏
       saleAttrList: [], // 所有销售属性列表
-      spuSaleAttrList: [], // 当前SPU销售属性列表
+      spuSaleAttrList: [], // 当前SPU销售属性列表spuSaleAttrList
       text: '', //定义的input内容
       rules: {
         // 表单校验规则对象
@@ -261,12 +261,18 @@ export default {
             // spuSaleAttrList: this.saleAttrList,
             spuSaleAttrList: this.spuSaleAttrList,
           }
-          // 收集到表单数据，然后点击保存按钮，发送请求
-          const result = await this.$API.spu.updateSpu(from)
+          let result
+          //通过判断有没有id，从而来判断是添加还是修改的请求的
+          if (this.spu.id) {
+            // 收集到表单数据，然后点击保存按钮，发送请求
+            result = await this.$API.spu.updateSpu(from)
+          } else {
+            result = await this.$API.spu.saveSpuInfo(from)
+          }
           // console.log(from)
           if (result.code === 200) {
             console.log(result)
-            this.$message.success('修改spu数据成功')
+            this.$message.success(`${this.spu.id ? '更新' : '添加'}spu数据成功`)
             this.$emit('showList', this.spu.category3Id)
             /*   // 成功之后然后调用展示页面的函数，
         this.$nextTick(() => {
@@ -415,12 +421,15 @@ export default {
   mounted() {
     //获取所有品牌数据
     this.getTrademarkList()
-    // 获取所有图片数据
-    this.getSpuImageList()
     // 获取所有销售属性接口
     this.getSaleAttrList()
-    // 获取单个spu销售属性列表
-    this.getSpuSaleAttrList()
+    // 通过判断spu上面有没有id,从而判断是点击添加的还是修改，因为添加是没有id的，有id就是修改，id是后台生成的，只有点击保存按钮之后后台才会给生成一个id
+    if (this.spu.id) {
+      // 获取所有图片数据
+      this.getSpuImageList()
+      // 获取单个spu销售属性列表
+      this.getSpuSaleAttrList()
+    }
   },
 }
 </script>
